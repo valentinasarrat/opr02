@@ -36,9 +36,9 @@
                 <h2>Evolución de la población en la Región Metropolitana Chilena</h2>
                 <p>Con una <a href="https://datavizcatalogue.com/ES/metodos/grafica_de_linea.html" target="_blank">gráfica de línea</a></p>
                 <div>
-                    <svg viewBox="0 0 570 210">
-                        <!-- El grupo se voltea verticalmente para que Y crezca hacia arriba (en SVG crece hacia abajo por defecto) -->
-                        <g transform="translate(0,195) scale(1,-1)" id="lineas"></g>
+                    <!-- viewBox más ancho (670) y más alto (520) para acomodar el último dato -->
+                    <svg viewBox="0 0 670 520">
+                        <g transform="translate(0,495) scale(1,-1)" id="lineas"></g>
                         <g id="years"></g>
                     </svg>
                 </div>
@@ -62,36 +62,31 @@
         <script>
             // ── GRÁFICA 1: línea ──────────────────────────────────────────────
 
-            // Fuente: https://es.wikipedia.org/wiki/Anexo:Crecimiento_poblacional_de_Santiago_de_Chile
             var lineal = {
-                censos:   [1820,  1854,   1865,   1888,   1920,   1940,   1952,    1960,    1982,    1992,    2002,    2012],
-                censados: [46000, 69018, 115337, 256000, 507296, 952075, 1350409, 1907378, 3899619, 4729118, 5428590, 7057491]
+                censos:   [1820,  1854,   1865,   1888,   1920,   1940,   1952,    1960,    1982,    1992,    2002,    2012,    2024],
+                censados: [46000, 69018, 115337, 256000, 507296, 952075, 1350409, 1907378, 3899619, 4729118, 5428590, 7057491, 18480432]
             };
 
-            var coordenadas = ""; // acumulará los pares x,y de la polyline
-            var etiquetas   = ""; // acumulará los textos con los años
+            var coordenadas = "";
+            var etiquetas   = "";
 
             lineal.censados.forEach(function(poblacion, i) {
-                // x: cada censo se separa 50 unidades; sumamos 7 para centrar el texto
                 var x = (i * 50) + 7;
-                // y: escalamos la población para que quepa en el SVG (÷ 40000)
+                // Factor 0.000025: 18480432 × 0.000025 ≈ 462, cabe en los 495 de alto
                 var y = Math.round(poblacion * 0.000025);
 
                 coordenadas += x + "," + y + " ";
-                etiquetas   += `<text x="${i * 50}" y="205" font-size="6">${lineal.censos[i]}</text>`;
+                etiquetas   += `<text x="${i * 50}" y="510" font-size="8">${lineal.censos[i]}</text>`;
             });
 
-            // Dibujamos la línea conectando todos los puntos
             document.querySelector("#lineas").innerHTML =
-                `<polyline points="${coordenadas}" fill="none" stroke="black" stroke-width="0.5" />`;
+                `<polyline points="${coordenadas}" fill="none" stroke="black" stroke-width="1" />`;
 
-            // Agregamos los años debajo de la línea
             document.querySelector("#years").innerHTML = etiquetas;
 
 
             // ── GRÁFICA 2: barras ─────────────────────────────────────────────
 
-            // Fuente: https://es.wikipedia.org/wiki/Anexo:Regiones_de_Chile_por_población
             var regiones = [
                 { region: "Metropolitana",   numero: 8420729 },
                 { region: "Valparaíso",      numero: 2010849 },
@@ -103,10 +98,8 @@
             ];
 
             regiones.forEach(function(d, i) {
-                // El ancho de cada barra es proporcional a la población
                 var ancho = d.numero / 20000;
 
-                // Cada fila baja 15 unidades con translate
                 document.querySelector("#barras").innerHTML +=
                     `<g transform="translate(0, ${i * 15})">
                         <rect x="0" y="0" width="${ancho}" height="10" />
